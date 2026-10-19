@@ -25,7 +25,8 @@ INTERVALS = {"10분마다": 10, "30분마다": 30, "1시간마다": 60, "수동"
 # page in Chrome devtools and update NAME_BOX / TAB_NAME / ADD_SHEET_BTN below.
 NAME_BOX = (By.ID, "t-name-box")
 TAB_NAME = (By.CLASS_NAME, "docs-sheet-tab-name")
-ADD_SHEET_BTN = (By.ID, "waffle-add-sheet-button")
+ADD_SHEET_BTN = (By.CLASS_NAME, "docs-sheet-add-button")
+GRID_CONTAINER = (By.ID, "waffle-grid-container")
 
 
 def load_config():
@@ -72,7 +73,13 @@ def _select_tab(driver, title):
 
 
 def _paste_sheet(driver, tsv):
-    _goto_cell(driver, "A1:ZZ2000")
+    # A1:ZZ2000-style name-box ranges now error out ("참조된 범위가 시트 크기를
+    # 초과합니다") when they exceed the sheet's current grid size, so clear via
+    # a real select-all on the grid instead of an oversized name-box range.
+    grid = driver.find_element(*GRID_CONTAINER)
+    ActionChains(driver).move_to_element(grid).click().perform()
+    time.sleep(0.2)
+    ActionChains(driver).key_down(Keys.CONTROL).send_keys("a").key_up(Keys.CONTROL).perform()
     ActionChains(driver).send_keys(Keys.DELETE).perform()
     time.sleep(0.3)
     _goto_cell(driver, "A1")
