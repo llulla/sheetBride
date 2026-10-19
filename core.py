@@ -8,7 +8,8 @@ from datetime import datetime
 
 import openpyxl
 import pyperclip
-from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -90,11 +91,11 @@ def _paste_sheet(driver, tsv):
 
 def sync_once(excel_path, sheet_url, log):
     profile_dir = tempfile.mkdtemp(prefix="sheetbride_")
-    options = webdriver.ChromeOptions()
+    options = ChromeOptions()
     options.add_argument(f"--user-data-dir={profile_dir}")
     options.add_argument("--disable-notifications")
     options.add_argument("--window-size=1280,900")
-    driver = webdriver.Chrome(options=options)
+    driver = Chrome(options=options)
     try:
         driver.get(sheet_url)
         WebDriverWait(driver, 20).until(EC.presence_of_element_located(NAME_BOX))
